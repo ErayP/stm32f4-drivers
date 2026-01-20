@@ -8,7 +8,27 @@
 #include "stm32f407xx_gpio_driver.h"
 #include "stm32f407xx.h"
 
-
+/***************************************************************************
+ * @fn									GPIO_PeriClockControl
+ *
+ * @brief
+ *
+ *
+ *
+ *
+ * @param[in]
+ * @param[in]
+ * @param[in]
+ *
+ *
+ * @return
+ *
+ * @Note : Verilen GPIO portunun clock’unu açar veya kapatır,
+ *
+ * STM32’de clock kapalıysa peripheral ölüdür
+ *
+ *	Register’a yazsan bile hiçbir şey olmaz
+ */
 void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx ,uint8_t EnorDi){
 
 	if(EnorDi == ENABLE)
@@ -97,6 +117,38 @@ void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx ,uint8_t EnorDi){
  * Inıt and De-Inıt
  */
 
+/***************************************************************************
+ * @fn									GPIO_Init
+ *
+ * @brief
+ *
+ *
+ *
+ *
+ * @param[in]
+ * @param[in]
+ * @param[in]
+ *
+ *
+ * @return
+ *
+ * @Note : Bir GPIO pinini baştan sona konfigüre eder
+	Bu fonksiyon:
+
+	Mode
+
+	Speed
+
+	Pull-up / pull-down
+
+	Output type
+
+	Alternate function
+
+	Interrupt ayarları
+
+	hepsini tek merkezde yapar.
+ */
 void GPIO_Init(GPIO_Handle_t *pGPIOHandle){
 
 	//1. configure the mode of gpio pin
@@ -177,11 +229,33 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle){
 		temp1 = pGPIOHandle->GPIO_PinConfig.GPIO_Number / 8;
 		temp2 = pGPIOHandle->GPIO_PinConfig.GPIO_Number % 8;
 		temp = (pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunMode << (4 * temp2));
-		pGPIOHandle->pGPIOx->AFR[temp1] &=~(0xF<<pGPIOHandle->GPIO_PinConfig.GPIO_Number);//clearing
+		pGPIOHandle->pGPIOx->AFR[temp1] &=~(0xF<< (4 * temp2));//clearing
 		pGPIOHandle->pGPIOx->AFR[temp1] |= temp;
 	}
 	temp = 0;
 }
+
+/***************************************************************************
+ * @fn									GPIO_DeInit
+ *
+ * @brief
+ *
+ *
+ *
+ *
+ * @param[in]
+ * @param[in]
+ * @param[in]
+ *
+ *
+ * @return
+ *
+ * @Note :GPIO portunu resetler
+
+	Tüm register’lar default haline döner
+
+	Debug sırasında çok faydalıdır
+ */
 void GPIO_DeInit(GPIO_RegDef_t *pGPIOx){
 
 	if(pGPIOx == GPIOA)
@@ -226,6 +300,24 @@ void GPIO_DeInit(GPIO_RegDef_t *pGPIOx){
  * Data read and write
  */
 
+/***************************************************************************
+ * @fn									GPIO_ReadFromInputPin
+ *
+ * @brief
+ *
+ *
+ *
+ *
+ * @param[in]
+ * @param[in]
+ * @param[in]
+ *
+ *
+ * @return
+ *
+ * @Note :Tek bir pinin lojik seviyesini okur (0 / 1)
+ */
+
 uint8_t GPIO_ReadFromInputPin(GPIO_RegDef_t *pGPIOx,uint8_t PinNumber){
 	uint8_t value;
 
@@ -233,6 +325,24 @@ uint8_t GPIO_ReadFromInputPin(GPIO_RegDef_t *pGPIOx,uint8_t PinNumber){
 
 	return value;
 }
+
+/***************************************************************************
+ * @fn									GPIO_ReadFromInputPort
+ *
+ * @brief
+ *
+ *
+ *
+ *
+ * @param[in]
+ * @param[in]
+ * @param[in]
+ *
+ *
+ * @return
+ *
+ * @Note :Tüm portu 16-bit olarak okur
+ */
 uint16_t GPIO_ReadFromInputPort(GPIO_RegDef_t *pGPIOx){
 	uint16_t value;
 
@@ -241,6 +351,23 @@ uint16_t GPIO_ReadFromInputPort(GPIO_RegDef_t *pGPIOx){
 	return value;
 
 }
+/***************************************************************************
+ * @fn									GPIO_WriteToOutputPin
+ *
+ * @brief
+ *
+ *
+ *
+ *
+ * @param[in]
+ * @param[in]
+ * @param[in]
+ *
+ *
+ * @return
+ *
+ * @Note :Tek bir pinin çıkışını 0 veya 1 yapar
+ */
 void GPIO_WriteToOutputPin(GPIO_RegDef_t *pGPIOx,uint8_t PinNumber,uint8_t Value){
 
 	if(Value == GPIO_PIN_SET)
@@ -253,9 +380,45 @@ void GPIO_WriteToOutputPin(GPIO_RegDef_t *pGPIOx,uint8_t PinNumber,uint8_t Value
 	}
 
 }
+
+/***************************************************************************
+ * @fn									GPIO_WriteToOutputPort
+ *
+ * @brief
+ *
+ *
+ *
+ *
+ * @param[in]
+ * @param[in]
+ * @param[in]
+ *
+ *
+ * @return
+ *
+ * @Note : Porttaki tüm pinleri tek seferde yazar
+ */
 void GPIO_WriteToOutputPort(GPIO_RegDef_t *pGPIOx, uint16_t Value){
 	pGPIOx->ODR = Value;
 }
+
+/***************************************************************************
+ * @fn									GPIO_ToggleOutputPin
+ *
+ * @brief
+ *
+ *
+ *
+ *
+ * @param[in]
+ * @param[in]
+ * @param[in]
+ *
+ *
+ * @return
+ *
+ * @Note :Pin durumunu tersine çevirir (toggle)
+ */
 void GPIO_ToggleOutputPin(GPIO_RegDef_t *pGPIOx,uint8_t PinNumber){
 	pGPIOx->ODR ^= (1<<PinNumber);
 }
@@ -264,12 +427,32 @@ void GPIO_ToggleOutputPin(GPIO_RegDef_t *pGPIOx,uint8_t PinNumber){
  * IRQ Configuration and ISR handling.
  */
 
+/***************************************************************************
+ * @fn									GPIO_IRQInterruptConfig
+ *
+ * @brief
+ *
+ *
+ *
+ *
+ * @param[in]
+ * @param[in]
+ * @param[in]
+ *
+ *
+ * @return
+ *
+ * @Note :/
+ * NVIC üzerinden hangi interrupt aktif olacak belirler
 
+	ISER → enable
 
-
-/*/
- * Hangi kesmenin aktif olacağını veya olmayacağını belirliyoruz.
+	ICER → disable
+ *
  */
+
+
+
 void GPIO_IRQInterruptConfig(uint8_t IRQNumber,uint8_t EnorDi){
 
 	if(EnorDi == ENABLE){
@@ -325,6 +508,14 @@ void GPIO_IRQPriorityConfig(uint8_t IRQNumber,uint8_t Priority){
 
 /*
  * donanım kesme olduğunda 1 yazıyor eğer bir olduysa biz gerekli işlemlerden sonra 1 yazarak resetliyoruz
+ *
+ * Interrupt geldikten sonra pending bit’i temizler
+
+Temizlemezsen:
+
+Interrupt tekrar tekrar gelir
+
+Sonsuz döngü olur
  */
 
 void GPIO_IRQHandling(uint8_t PinNumber){

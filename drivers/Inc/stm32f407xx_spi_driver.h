@@ -26,6 +26,16 @@ typedef struct{
 	SPI_RegDef_t *pSPIx;
 	SPI_PinConfig_t SPI_PinConfig;
 
+
+	uint8_t *pTxBuffer;   // Uygulamanın Tx buffer adresi
+	uint8_t *pRxBuffer;   // Rx buffer adresi
+	uint32_t TxLen;       // Gönderilecek byte sayısı
+	uint32_t RxLen;
+
+	uint8_t TxState;      // SPI BUSY / READY
+	uint8_t RxState;
+
+
 }SPI_Handle_t;
 
 
@@ -85,6 +95,21 @@ typedef struct{
 #define SPI_BUSY_FLAG 							(1<<SPI_SR_BSY)
 #define SPI_FRE_FLAG 							(1<<SPI_SR_FRE)
 
+/*
+ * SPIx Interrupt State
+ */
+#define SPI_READY       0
+#define SPI_BUSY_IN_RX  1
+#define SPI_BUSY_IN_TX  2
+
+/*
+ * POSSİBLE APPLİCATİON STATE
+ */
+
+#define SPI_EVENT_TX_CMPLT		1
+#define SPI_EVENT_RX_CMPLT		2
+#define SPI_EVENT_OVR_ERR		3
+#define SPI_EVENT_CRC_ERR		4
 
 /****************************************************************************************************
  * 							APIs supported this by driver
@@ -114,6 +139,8 @@ void SPI_DeInit(SPI_RegDef_t *pSPIx);
 void SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len);
 void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t Len);
 
+uint8_t SPI_SendDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pTxBuffer, uint32_t Len);
+uint8_t SPI_ReceiveDataIT(SPI_Handle_t *pSPIHandle, uint8_t *pRxBuffer, uint32_t Len);
 
 /*
  * IRQ and ISR handling
@@ -128,9 +155,16 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle);
  */
 
 void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnorDi);
+void SPI_SSOEConfig(SPI_RegDef_t *pSPIx, uint8_t EnorDi);
+uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t Flagname);
+void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx);
+void SPI_CloseTransmission(SPI_Handle_t *pSPIHandle);
+void SPI_CloseReception(SPI_Handle_t *pSPIHandle);
 
-
-
+/*
+ * application call back
+ */
+void SPI_ApplicationEventCallBack(SPI_Handle_t *pSPIHandle,uint8_t AppEv);
 
 
 

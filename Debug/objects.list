@@ -1,6 +1,7 @@
-"./Src/006_spi_testing.o"
+"./Src/011i2c_master_rx_testing.o"
 "./Src/syscalls.o"
 "./Src/sysmem.o"
 "./Startup/startup_stm32f407vgtx.o"
+"./drivers/Src/stm32f407xx_I2C_driver.o"
 "./drivers/Src/stm32f407xx_gpio_driver.o"
 "./drivers/Src/stm32f407xx_spi_driver.o"

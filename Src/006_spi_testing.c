@@ -58,7 +58,7 @@ void SPI2_Inits(void){
 	SPI2Handle.pSPIx = SPI2;
 	SPI2Handle.SPI_PinConfig.SPI_BusConfig = SPI_BUS_CONFIG_FD;
 	SPI2Handle.SPI_PinConfig.SPI_DeviceMode = SPI_DEVICE_MOD_MASTER;
-	SPI2Handle.SPI_PinConfig.SPI_SclkSpeed = SPI_SCLK_SPEED_DIV2; //generates sclk of 8 mhz
+	SPI2Handle.SPI_PinConfig.SPI_SclkSpeed = SPI_SCLK_SPEED_DIV256; //generates sclk of 8 mhz
 	SPI2Handle.SPI_PinConfig.SPI_DFF = SPI_DFF8;
 	SPI2Handle.SPI_PinConfig.SPI_CPHA = SPI_CPHA_LOW;
 	SPI2Handle.SPI_PinConfig.SPI_CPOL = SPI_CPOL_LOW;
@@ -69,7 +69,7 @@ void SPI2_Inits(void){
 }
 int main(){
 
-	char user_data[] = "Hello World";
+	char user_data[] = "selamin aleykum hayirli isler antep kizlari nazli cilveler.";
 
 	SPI2_GPIOInits();
 
@@ -78,6 +78,10 @@ int main(){
 	SPI_PeripheralControl(SPI2,ENABLE);
 
 	SPI_SendData(SPI2, (uint8_t*)user_data, strlen(user_data));
+
+	while(SPI_GetFlagStatus(SP2,SPI_BUSY_FLAG));
+
+	SPI_PeripheralControl(SPI2,DISABLE);
 
 	while(1);
 
