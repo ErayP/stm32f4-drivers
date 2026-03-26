@@ -525,6 +525,19 @@ typedef struct {
 
 
 
+/*
+ * I2Cx IRQ Numbers
+ */
+
+#define IRQ_NO_I2C1_EV										38
+#define IRQ_NO_I2C1_ER										39
+
+#define IRQ_NO_I2C2_EV										40
+#define IRQ_NO_I2C2_ER										41
+
+#define IRQ_NO_I2C3_EV										79
+#define IRQ_NO_I2C3_ER										80
+
 
 
 /*
